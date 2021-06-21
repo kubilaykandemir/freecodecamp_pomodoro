@@ -6,10 +6,14 @@ const Timer = (props) => {
   const sessionLength = props.sessionLength;
   const breakLength = props.breakLength;
   const resetApp = props.resetApp;
-  const [countdown, setCountdown] = useState(sessionLength);
+  // const [countdown, setCountdown] = useState(sessionLength);
+  const [{ countdown, isSession }, setCounterState] = useState({
+    countdown: sessionLength,
+    isSession: true,
+  });
   const [intervalId, setIntervalId] = useState(null);
   const [isStarted, setIsStarted] = useState(false);
-  const [isSession, setIsSession] = useState(true);
+  // const [isSession, setIsSession] = useState(true);
 
   momentDurationFormatSetup(moment);
 
@@ -17,10 +21,21 @@ const Timer = (props) => {
 
   useEffect(() => {
     if (isSession) {
-      return setCountdown(sessionLength);
+      return setCounterState((prevState) => {
+        return {
+          ...prevState,
+          countdown: sessionLength,
+        };
+      });
     }
+
     if (!isSession) {
-      return setCountdown(breakLength);
+      return setCounterState((prevState) => {
+        return {
+          ...prevState,
+          countdown: breakLength,
+        };
+      });
     }
   }, [sessionLength, breakLength, isSession]);
 
@@ -28,27 +43,30 @@ const Timer = (props) => {
     if (!isStarted) {
       let id = setInterval(
         () =>
-          setCountdown((prevTimeLeft) => {
-            const newTimeLeft = prevTimeLeft - 1;
-            if (newTimeLeft > 0) {
-              return newTimeLeft;
-            }
-            if (newTimeLeft === 0) {
-              return newTimeLeft;
+          setCounterState((prevState) => {
+            const newTimeLeft = prevState.countdown - 1;
+            if (newTimeLeft >= 0) {
+              return {
+                ...prevState,
+                countdown: newTimeLeft,
+              };
             }
             if (newTimeLeft < 0) {
               audio.play();
-              if (isSession) {
-                setIsSession(false);
-                return breakLength;
-              }
-              if (!isSession) {
-                setIsSession(true);
-                return sessionLength;
+              if (prevState.isSession === true)
+                return {
+                  isSession: !prevState.isSession,
+                  countdown: breakLength,
+                };
+              if (prevState.isSession === false) {
+                return {
+                  isSession: !prevState.isSession,
+                  countdown: sessionLength,
+                };
               }
             }
           }),
-        100
+        1000
       );
       setIntervalId(id);
       setIsStarted(true);
@@ -63,9 +81,11 @@ const Timer = (props) => {
     audio.pause();
     audio.currentTime = 0;
     resetApp();
-    setIsSession(true);
+    setCounterState({
+      isSession: true,
+      countdown: sessionLength,
+    });
     setIsStarted(false);
-    setCountdown(sessionLength);
   };
 
   const formattedCountdown = moment

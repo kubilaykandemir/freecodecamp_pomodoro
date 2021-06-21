@@ -11,59 +11,48 @@ function App() {
   const onSessionLengthChange = (e) => {
     const value = e.target.getAttribute("value");
     if (value === "increase") {
-      setSessionLength((prevState) => {
-        if (prevState < 3600) {
-          return prevState + 60;
-        }
-        if (prevState >= 3600) {
-          return 3600;
-        }
-      });
+      if (sessionLength < 3600) {
+        setSessionLength((prevState) => prevState + 60);
+      }
+      if (sessionLength >= 3600) {
+        setSessionLength(3600);
+      }
     }
     if (value === "decrease") {
-      setSessionLength((prevState) => {
-        if (prevState > 60) {
-          return prevState - 60;
-        }
-        if (prevState <= 60) {
-          return 60;
-        }
-      });
+      if (sessionLength > 60) {
+        setSessionLength((prevState) => prevState - 60);
+      }
+      if (sessionLength <= 60) {
+        setSessionLength(60);
+      }
     }
   };
 
   const onBreakLengthChange = (e) => {
     const value = e.target.getAttribute("value");
     if (value === "increase") {
-      setBreakLength((prevState) => {
-        if (prevState < 3600) {
-          return prevState + 60;
-        }
-        if (prevState >= 3600) {
-          return 3600;
-        }
-      });
+      if (breakLength < 3600) {
+        setBreakLength((prevState) => prevState + 60);
+      }
+      if (breakLength >= 3600) {
+        setBreakLength(3600);
+      }
     }
     if (value === "decrease") {
-      setBreakLength((prevState) => {
-        if (prevState > 60) {
-          return prevState - 60;
-        }
-        if (prevState <= 60) {
-          return 60;
-        }
-      });
+      if (breakLength > 60) {
+        setBreakLength((prevState) => prevState - 60);
+      }
+      if (breakLength <= 60) setBreakLength(60);
     }
   };
 
   const resetApp = () => {
-    setBreakLength(300);
     setSessionLength(1500);
+    setBreakLength(300);
   };
 
   return (
     <div className="App">
-      <freeCodeCampTest />
       <Session
         sessionLength={sessionLength}
         onSessionLengthChange={onSessionLengthChange}
